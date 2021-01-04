@@ -1,0 +1,77 @@
+.sidebar {
+	flex: 0.25;
+	flex-direction: column;
+    display: flex;
+    min-width: 250px;
+    max-width: 500px;
+}
+
+.sidebar__header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	border-right: 1px solid lightgray;
+	background-color:#45aaf2;
+	padding: 8px;
+}
+
+.sidebar__header > .MuiAvatar-root {
+    width: 35px;
+    height: 35px;
+    margin-left: 10px;
+}
+
+.sidebar__headerRight {
+	display: flex;
+	justify-content: flex-end;
+	min-width: 7vw;
+    margin-left: 7px;
+}
+
+.sidebar__headerRight > .MuiIconButton-root {
+    padding: 10;
+}
+
+.sidebar__iconBtn {
+    color: white !important;
+}
+
+.siebar__search {
+	display: flex;
+	background-color: rgb(250, 243, 243);
+	height: 40px;
+	align-items: center;
+	padding: 10px;
+}
+
+.sidebar__searchcontainer {
+	display: flex;
+	background-color: white;
+	width: 100%;
+	height: 35px;
+	border-radius: 999px;
+	align-items: center;
+}
+
+.sidebar__searchcontainer > input {
+	width: 80%;
+	border: none;
+	margin-left: 10px;
+	color: gray;
+}
+
+.sidebar__searchcontainer > input:focus {
+    outline: none;
+}
+
+.sidebar__searchcontainer >.MuiSvgIcon-root {
+	margin-left: 15px;
+	color: gray;
+	font-size: 18px !important;
+}
+
+.sidebar__chhatsGroups {
+	flex: 1;
+	background-color: white;
+	overflow-y: scroll;
+}
