@@ -18,7 +18,8 @@
 .sidebar__header > .MuiAvatar-root {
     width: 35px;
     height: 35px;
-    margin-left: 10px;
+	margin-left: 10px;
+	cursor: pointer;
 }
 
 .sidebar__headerRight {
@@ -36,7 +37,7 @@
     color: white !important;
 }
 
-.siebar__search {
+.sidebar__search {
 	display: flex;
 	background-color: rgb(250, 243, 243);
 	height: 40px;
