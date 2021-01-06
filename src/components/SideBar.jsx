@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import SidebarChat from './SidebarChat'
 import "./Sidebar.css";
 
@@ -10,6 +10,16 @@ import MoreVertIcon from "@material-ui/icons/MoreVert";
 import SearchIcon from "@material-ui/icons/Search";
 
 function SideBar() {
+    const [input, setInput] = useState("");
+
+    const handleSubmit = (event) => {
+        event.preventDefault();
+
+        // TODO: Search Logic
+
+        setInput("");
+    }
+
     return (
         <div className="sidebar">
             <div className="sidebar__header">
@@ -27,13 +37,19 @@ function SideBar() {
                 </div>
             </div>
             <div className="sidebar__search">
-                <div className="sidebar__searchcontainer">
+                <form onSubmit={handleSubmit}
+                    className="sidebar__searchcontainer">
                     <SearchIcon/>
-                    <input placeholder="Find or start a conversation" type="text"/>
-                </div>
+                    <input value={input}
+                        onChange={
+                            (e) => setInput(e.target.value)
+                        }
+                        formAction="submit"
+                        placeholder="Find or create a chat-room"
+                        type="text"/>
+                </form>
             </div>
-
-            <div className="sidebar__chhatsGroups">
+            <div className="sidebar__chatGroups">
                 <SidebarChat/>
             </div>
         </div>
