@@ -1,9 +1,22 @@
 import React from 'react'
+import {actionTypes} from '../contexts/reducer';
+import {useStateValue} from '../contexts/StateProvier';
+import {auth, db, provider} from '../utils/firebase';
 import './Login.css'
 
 function Login() {
 
-    const handleSignIn = () => {};
+    const [, dispatch] = useStateValue();
+
+    const handleSignIn = () => {
+        auth.signInWithPopup(provider).then((result) => {
+            const user = result.user;
+            if (result.additionalUserInfo.isNewUser) {
+                db.collection("users").doc(user.uid).set({display_name: user.displayName, email: user.email, email_verified: user.emailVerified, photo_url: user.photoURL})
+            }
+            dispatch({type: actionTypes.SET_USER, user: result.user})
+        }).catch((err) => alert(err.message));
+    };
 
     return (
         <div className="login">

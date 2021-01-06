@@ -3,7 +3,6 @@
     flex-direction: row;
     justify-content: left;
     align-items: center;
-    background-color: #ecf0f1;
     cursor: pointer;
     height: 72px;
     font-family: Segoe UI,Helvetica Neue,Helvetica,Lucida Grande,Arial,Ubuntu,Cantarell,Fira Sans,sans-serif;
@@ -65,7 +64,16 @@
 
 .sidebarChat__chat {
     margin-top: 2px;
+    margin-right: 2px;
     color: rgba(0, 0, 0, 0.6);
     font-size: 13px;
     line-height: 20px;
+    max-width: 75%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+a {
+    text-decoration: none !important;
 }

@@ -1,27 +1,34 @@
 import App from './pages/App'
 import Login from './pages/Login'
-import {Redirect, Switch, BrowserRouter as Router, Route} from "react-router-dom";
+import {Switch, BrowserRouter as Router, Route} from "react-router-dom";
 import './Main.css';
+import {useStateValue} from './contexts/StateProvier';
 
 function Main() {
-    const user = "null";
+    const [
+        {
+            user
+        },
+    ] = useStateValue();
+
     return (
-        <div>
-            <Router> {
-                ! user ? (
-                    <Redirect to='/login'/>
-                ) : (
-                    <Redirect to='/app'/>
-                )
-            }
-                <Switch>
-                    <Route exact path='/app'
-                        component={App}/>
-                    <Route path='/login'
-                        component={Login}/>
-                </Switch>
-            </Router>
-        </div>
+        <div> {
+            !user ? <Login/>: (
+                <Router>
+                    <Switch>
+                        <Route exact path='/'>
+                            <App/>
+                        </Route>
+                        <Route exact path='/login'>
+                            <Login/>
+                        </Route>
+                        <Route exact path='/rooms/:roomId'>
+                            <App/>
+                        </Route>
+                    </Switch>
+                </Router>
+            )
+        } </div>
     );
 }
 
