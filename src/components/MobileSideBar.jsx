@@ -12,7 +12,7 @@ import Button from "@material-ui/core/Button";
 
 // Utils
 import {db} from '../utils/firebase'
-import SidebarChat from "./SidebarChat";
+import SideBarChat from "./SideBarChat";
 
 function MobileSideBar() {
     const [isChatRoom, setIsChatRoom] = useState(true);
@@ -74,7 +74,7 @@ function MobileSideBar() {
                 <div className="mobileSidebar__chatGroups">
                     {
                     isChatRoom ? (rooms.map(room => 
-                        <SidebarChat key={room.id}
+                        <SideBarChat key={room.id}
                             id={room.id}
                             name={room.data.name}/>)) 
                         : 

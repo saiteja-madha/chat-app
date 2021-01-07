@@ -1,21 +1,24 @@
 * {
     margin: 0;
+    padding: 0;
 }
 
 .app {
     display: grid;
     height: 100vh;
-    background-color: #e9e9e3;
+    background: linear-gradient(#141e30, #243b55);
     place-items: center;
     overflow-x: hidden;
 }
   
 .app__container {
-    box-shadow: -1px 4px 20px -6px rgba(0, 0, 0, 0.3);
     display: flex;
+    background: rgba(0,0,0,.5);
+	box-sizing: border-box;
+	box-shadow: 0 15px 25px rgba(0,0,0,.6);
     width: 90vw;
     height: 90vh;
-    background-color: rgb(250, 250, 250);
+    border-radius: 15px;
 }
 
 @media (max-width: 800px) {

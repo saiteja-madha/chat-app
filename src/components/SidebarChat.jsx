@@ -1,19 +1,17 @@
 import React, { useEffect, useState } from 'react'
 import { db } from '../utils/firebase';
-import './SidebarChat.css'
+import './SideBarChat.css'
 
 // Material UI
 import {Avatar} from '@material-ui/core'
 import {Link} from 'react-router-dom'
 
-function SidebarChat({id, name}) {
-
+function SideBarChat({id, name}) {
     const [messages, setmessages] = useState("");
 
     useEffect(() => {
         if (id) {
-          db
-            .collection("rooms")
+          db.collection("rooms")
             .doc(id)
             .collection("messages")
             .orderBy("timestamp", "desc")
@@ -24,20 +22,16 @@ function SidebarChat({id, name}) {
       }, [id]);
 
     return (
-        <Link className={{
-            color: 'inherit',
-            textDecoration: 'none',
-          }} to={
-            `/rooms/${id}`
-        }>
+        <Link className="" to={`/rooms/${id}`}>
             <div className="sidebarChat">
                 <Avatar className="sidebarChat__avatar"/>
                 <div className="sidebarChat__content">
                     <div className="sidebarChat__topRow">
                         <div className="sidebarChat__author">
-                            {name} </div>
+                            {name} 
+                        </div>
                         <div className="sidebarChat__lastSeen">
-                        { messages.length === 0 ? '' : new Date(messages[messages.length - 1]?.timestamp?.toDate()).toDateString()}
+                            { messages.length === 0 ? '' : new Date(messages[messages.length - 1]?.timestamp?.toDate()).toDateString()}
                         </div>
                     </div>
                     <div className="sidebarChat__chat">
@@ -49,4 +43,4 @@ function SidebarChat({id, name}) {
     )
 }
 
-export default SidebarChat
+export default SideBarChat

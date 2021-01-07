@@ -19,24 +19,24 @@ import SwipeableDrawer from '@material-ui/core/SwipeableDrawer';
 import TocIcon from '@material-ui/icons/Toc';
 
 function Chat() {
-    const [input, setInput] = useState("");
+    const [messageInput, setMessageInput] = useState("");
     const {roomId} = useParams();
     const [roomName, setRoomName] = useState("");
     const [messages, setMessages] = useState([]);
     const [{user},] = useStateContext();
-    const [anchorToggle, setAnchorToggle] = useState({left: false,});
+    const [leftAnchor, setLeftAnchor] = useState(false);
   
-    const toggleDrawer = (anchor, open) => (event) => {
+    const toggleDrawer = (open) => (event) => {
       if (event && event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
         return;
       }
-      setAnchorToggle({ ...anchorToggle, [anchor]: open });
+      setLeftAnchor(open);
     };
   
     const renderMobileNav = () => (
       <div
-        onClick={toggleDrawer('left', false)}
-        onKeyDown={toggleDrawer('left', false)}
+        onClick={toggleDrawer(false)}
+        onKeyDown={toggleDrawer(false)}
       >
           <MobileSideBar/>
       </div>
@@ -44,22 +44,31 @@ function Chat() {
 
     useEffect(() => {
         if (roomId) {
-            const nameListener = db.collection("rooms").doc(roomId).onSnapshot((snapshot) => setRoomName(snapshot.data().name));
-            const msgListener = db.collection("rooms").doc(roomId).collection("messages").orderBy("timestamp", "asc").onSnapshot((snapshot) => setMessages(snapshot.docs.map((doc) => doc.data())));
+            const nameListener = db.collection("rooms")
+                .doc(roomId)
+                .onSnapshot((snapshot) => setRoomName(snapshot.data().name));
+
+            const msgListener = db.collection("rooms")
+                .doc(roomId)
+                .collection("messages")
+                .orderBy("timestamp", "asc")
+                .onSnapshot((snapshot) => setMessages(snapshot.docs.map((doc) => doc.data())));
 
             return() => {
                 nameListener();
                 msgListener();
             }
-
         }
     }, [roomId]);
 
     const sendMessage = (event) => {
         event.preventDefault();
+        db.collection("rooms")
+            .doc(roomId)
+            .collection("messages")
+            .add({author_id: user.user_id, author_name: user.display_name, message: messageInput, timestamp: firebase.firestore.FieldValue.serverTimestamp()});
 
-        db.collection("rooms").doc(roomId).collection("messages").add({author_id: user.uid, author_name: user.displayName, message: input, timestamp: firebase.firestore.FieldValue.serverTimestamp()});
-        setInput("");
+        setMessageInput("");
     };
 
     if (!roomId) {
@@ -67,13 +76,13 @@ function Chat() {
             <div className="chat__wrapper">
                 <SwipeableDrawer
                     anchor={'left'}
-                    open={anchorToggle['left']}
-                    onClose={toggleDrawer('left', false)}
-                    onOpen={toggleDrawer('left', true)}
+                    open={leftAnchor}
+                    onClose={toggleDrawer(false)}
+                    onOpen={toggleDrawer(true)}
                 >
                     {renderMobileNav()}
                 </SwipeableDrawer>
-                <div className="mobileNavDiv" onClick={toggleDrawer('left', true)}>
+                <div className="mobileNavDiv" onClick={toggleDrawer(true)}>
                     <IconButton>
                         <TocIcon/>
                     </IconButton>
@@ -87,14 +96,14 @@ function Chat() {
         <div className="chat__wrapper">
             <SwipeableDrawer
                 anchor={'left'}
-                open={anchorToggle['left']}
-                onClose={toggleDrawer('left', false)}
-                onOpen={toggleDrawer('left', true)}
+                open={leftAnchor}
+                onClose={toggleDrawer(false)}
+                onOpen={toggleDrawer(true)}
             >
                 {renderMobileNav()}
             </SwipeableDrawer>
             <div className="chat">
-                <div className="mobileNavDiv" onClick={toggleDrawer('left', true)}>
+                <div className="mobileNavDiv" onClick={toggleDrawer(true)}>
                     <IconButton>
                         <TocIcon/>
                     </IconButton>
@@ -120,42 +129,29 @@ function Chat() {
                     </div>
                 </div>
                 <div className="chat__body">
-                    {
-                    messages.map((message) => (
-                        <p key={
-                                message.name
-                            }
-                            className={
-                                `chat__message ${
-                                    message.author_id === user.uid && `chat__receiver`
-                                }`
-                        }>
-                            <span className={`chat__username ${message.author_id === user.uid && 'hidden'}`}>
-                                {
-                                message.author_name
-                            }</span>
-                            {
-                            message.message
-                        }
-                            <span className="chat__timestamp ">
-                                {
-                                message.timestamp && new Date(message.timestamp?.toDate()).toUTCString()
-                            } </span>
-                        </p>
-                    ))
-                } </div>
+                    {messages.map((message) => (
+                    <p key={message.name} className={`chat__message ${message.author_id === user.user_id && `chat__receiver`}`}>
+                        <span className={`chat__username ${message.author_id === user.user_id && 'hidden'}`}>
+                            {message.author_name}
+                        </span>
+                        {message.message}
+                        <span className="chat__timestamp ">
+                            {message.timestamp && new Date(message.timestamp?.toDate()).toUTCString()}
+                        </span>
+                    </p>
+                    ))} 
+                </div>
                 <div className="chat__footer">
                     <div className="chat__footerLeft">
                         <SentimentVerySatisfiedIcon/>
                     </div>
                     <form>
-                        <input value={input}
-                            onChange={
-                                (event) => setInput(event.target.value)
-                            }
-                            placeholder="Type your message here"/>
-                        <button type="submit"
-                            onClick={sendMessage}>
+                        <input 
+                            value={messageInput}
+                            onChange={event => setMessageInput(event.target.value)}
+                            placeholder="Type your message here"
+                        />
+                        <button type="submit"onClick={sendMessage}>
                             <SendIcon/>
                         </button>
                     </form>

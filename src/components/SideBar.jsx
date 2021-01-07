@@ -1,27 +1,20 @@
-import React, {useState, useEffect} from "react";
-import SidebarChat from './SidebarChat'
-import "./Sidebar.css";
-import {useStateContext} from '../contexts/StateProvier'
+import React, { useState, useEffect } from "react";
+import SideBarChat from './SideBarChat'
+import { useStateContext } from '../contexts/StateProvier'
+import { db } from '../utils/firebase'
+import "./SideBar.css";
 
 // Material UI
-import {Avatar, IconButton} from "@material-ui/core";
-import ChatIcon from "@material-ui/icons/Chat";
-import DonutLargeIcon from "@material-ui/icons/DonutLarge";
+import { Avatar, Button, IconButton } from "@material-ui/core";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
-import Button from "@material-ui/core/Button";
-
-// Utils
-import {db} from '../utils/firebase'
+import ToggleOffIcon from '@material-ui/icons/ToggleOff';
+import ToggleOnIcon from '@material-ui/icons/ToggleOn';
 
 function SideBar() {
     const [isChatRoom, setIsChatRoom] = useState(true);
     const [rooms, setRooms] = useState([]);
-
-    const [
-        {
-            user
-        },
-    ] = useStateContext();
+    const [dms, setDms] = useState([]);
+    const [{ user },] = useStateContext();
 
     useEffect(() => {
         const unsubscribe = db.collection("rooms").onSnapshot(snapshot => {
@@ -32,15 +25,24 @@ function SideBar() {
         }
     }, [])
 
+    useEffect(() => {
+        const unsubscribe = db.collection("users").doc(user.user_id).collection("private_rooms").onSnapshot(snapshot => {
+            setDms(snapshot.docs.map(doc => ({id: doc.data().id, name:doc.data().name})))
+        })
+        return () => {
+            unsubscribe();
+        }
+        
+    }, [user])
+
     const handleButtonClick = () => {
         const name = prompt("Please enter name for chat room")
-
         if (name) {
             db.collection("rooms").add({name: name});
         }
     }
 
-    const handleSwitch = () => {
+    const handleToggle = () => {
         setIsChatRoom(prev => !prev);
     }
 
@@ -49,15 +51,11 @@ function SideBar() {
             <div className="sidebar">
                 <div className="sidebar__header">
                     <Avatar src={
-                        user ? user.photoURL : ""
+                        user ? user.photo_url : ""
                     }/>
                     <div className="sidebar__headerRight">
-                        <IconButton>
-                            <DonutLargeIcon onClick={handleSwitch}
-                                className="sidebar__iconBtn"/>
-                        </IconButton>
-                        <IconButton>
-                            <ChatIcon className="sidebar__iconBtn"/>
+                        <IconButton onClick={handleToggle}>
+                            {isChatRoom ? <ToggleOffIcon /> : <ToggleOnIcon/>}
                         </IconButton>
                         <IconButton>
                             <MoreVertIcon className="sidebar__iconBtn"/>
@@ -70,14 +68,19 @@ function SideBar() {
                     </Button>
                 </div>
                 <div className="sidebar__chatGroups">
-                    {
-                    isChatRoom ? (rooms.map(room => 
-                        <SidebarChat key={room.id}
+                    {isChatRoom ? (rooms.map(room => 
+                        <SideBarChat key={room.id}
                             id={room.id}
-                            name={room.data.name}/>)) 
+                            name={room.data.name}
+                        />)) 
                         : 
-                        (<div>Hello</div>)
-                } </div>
+                    (dms.map(dms => 
+                        <SideBarChat key={dms.id}
+                            id={dms.id}
+                            name={dms.name}
+                        />)) 
+                    } 
+                </div>
             </div>
         </div>
     )
