@@ -1,10 +1,10 @@
 import React, {useState, useEffect} from "react";
-import SidebarChat from './SidebarChat'
-import "./Sidebar.css";
+
+import "./MobileSidebar.css";
 import {useStateContext} from '../contexts/StateProvier'
 
 // Material UI
-import {Avatar, IconButton} from "@material-ui/core";
+import {Avatar, Divider, IconButton} from "@material-ui/core";
 import ChatIcon from "@material-ui/icons/Chat";
 import DonutLargeIcon from "@material-ui/icons/DonutLarge";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
@@ -12,8 +12,9 @@ import Button from "@material-ui/core/Button";
 
 // Utils
 import {db} from '../utils/firebase'
+import SidebarChat from "./SidebarChat";
 
-function SideBar() {
+function MobileSideBar() {
     const [isChatRoom, setIsChatRoom] = useState(true);
     const [rooms, setRooms] = useState([]);
 
@@ -45,31 +46,32 @@ function SideBar() {
     }
 
     return (
-        <div className="sidebar__wrapper">
-            <div className="sidebar">
-                <div className="sidebar__header">
+        <div className="mobileSidebar__wrapper">
+            <div className="mobileSidebar">
+                <div className="mobileSidebar__header">
                     <Avatar src={
                         user ? user.photoURL : ""
                     }/>
-                    <div className="sidebar__headerRight">
+                    <div className="mobileSidebar__headerRight">
                         <IconButton>
                             <DonutLargeIcon onClick={handleSwitch}
-                                className="sidebar__iconBtn"/>
+                                className="mobileSidebar__iconBtn"/>
                         </IconButton>
                         <IconButton>
-                            <ChatIcon className="sidebar__iconBtn"/>
+                            <ChatIcon className="mobileSidebar__iconBtn"/>
                         </IconButton>
                         <IconButton>
-                            <MoreVertIcon className="sidebar__iconBtn"/>
+                            <MoreVertIcon className="mobileSidebar__iconBtn"/>
                         </IconButton>
                     </div>
                 </div>
+                <Divider />
                 <div className="sidebar__newRoom" onClick={handleButtonClick}>
                     <Button variant="contained" color="primary">
                         {`${isChatRoom ? 'New chat-room' : 'New conversation'}`} 
                     </Button>
                 </div>
-                <div className="sidebar__chatGroups">
+                <div className="mobileSidebar__chatGroups">
                     {
                     isChatRoom ? (rooms.map(room => 
                         <SidebarChat key={room.id}
@@ -83,4 +85,4 @@ function SideBar() {
     )
 }
 
-export default SideBar
+export default MobileSideBar

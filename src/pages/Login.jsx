@@ -1,12 +1,12 @@
 import React from 'react'
 import {actionTypes} from '../contexts/reducer';
-import {useStateValue} from '../contexts/StateProvier';
+import {useStateContext} from '../contexts/StateProvier';
 import {auth, db, provider} from '../utils/firebase';
 import './Login.css'
 
 function Login() {
 
-    const [, dispatch] = useStateValue();
+    const [, dispatch] = useStateContext();
 
     const handleSignIn = () => {
         auth.signInWithPopup(provider).then((result) => {

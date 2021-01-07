@@ -1,9 +1,17 @@
-.chat {
-    flex: 0.75;
+.chat__wrapper {
+    flex: 0.70;
+    flex-grow: 1;
     min-width: 400px;
     overflow: hidden;
     display: flex;
+    flex-direction: column; 
+}
+
+.chat {
+    display: flex;
     flex-direction: column;
+    flex: 1;
+    flex-grow: 1;
 }
 
 .chat__header {
@@ -150,4 +158,22 @@
 
 .hidden {
     display: none;
+}
+
+.mobileNavDiv {
+    background-color: black;
+    color: white;
+    display: none;
+}
+
+@media (max-width: 800px) {
+	.chat__wrapper {
+        flex: 1;
+    }
+    .mobileNavDiv {
+        display: block;
+    }
+    .mobileNavDiv > .MuiIconButton-root {
+        color: white;
+    }
 }

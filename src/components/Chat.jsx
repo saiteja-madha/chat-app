@@ -1,5 +1,10 @@
 import React, {useEffect, useState} from 'react'
 import firebase from 'firebase'
+import {useParams} from 'react-router-dom';
+import {db} from '../utils/firebase';
+import {useStateContext} from '../contexts/StateProvier';
+import MobileSideBar from './MobileSideBar';
+import DashBoard from './DashBoard';
 import './Chat.css'
 
 // Material UI
@@ -10,20 +15,32 @@ import AttachFileIcon from "@material-ui/icons/AttachFile";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import SentimentVerySatisfiedIcon from "@material-ui/icons/SentimentVerySatisfied";
 import MicIcon from "@material-ui/icons/Mic";
-import {useParams} from 'react-router-dom';
-import {db} from '../utils/firebase';
-import {useStateValue} from '../contexts/StateProvier';
+import SwipeableDrawer from '@material-ui/core/SwipeableDrawer';
+import TocIcon from '@material-ui/icons/Toc';
 
 function Chat() {
     const [input, setInput] = useState("");
     const {roomId} = useParams();
     const [roomName, setRoomName] = useState("");
     const [messages, setMessages] = useState([]);
-    const [
-        {
-            user
-        },
-    ] = useStateValue();
+    const [{user},] = useStateContext();
+    const [anchorToggle, setAnchorToggle] = useState({left: false,});
+  
+    const toggleDrawer = (anchor, open) => (event) => {
+      if (event && event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
+        return;
+      }
+      setAnchorToggle({ ...anchorToggle, [anchor]: open });
+    };
+  
+    const renderMobileNav = () => (
+      <div
+        onClick={toggleDrawer('left', false)}
+        onKeyDown={toggleDrawer('left', false)}
+      >
+          <MobileSideBar/>
+      </div>
+    );
 
     useEffect(() => {
         if (roomId) {
@@ -45,69 +62,105 @@ function Chat() {
         setInput("");
     };
 
-    return (
-        <div className="chat">
-            <div className="chat__header">
-                <Avatar/>
-                <div className="chat__headerLeft">
-                    <h3>{roomName}</h3>
-                    <p>
-                        { messages.length === 0 ? '' : 'Last seen ' + new Date(messages[messages.length - 1]?.timestamp?.toDate()).toUTCString()}
-                    </p>
-                </div>
-                <div className="chat__headerRight">
+    if (!roomId) {
+        return (
+            <div className="chat__wrapper">
+                <SwipeableDrawer
+                    anchor={'left'}
+                    open={anchorToggle['left']}
+                    onClose={toggleDrawer('left', false)}
+                    onOpen={toggleDrawer('left', true)}
+                >
+                    {renderMobileNav()}
+                </SwipeableDrawer>
+                <div className="mobileNavDiv" onClick={toggleDrawer('left', true)}>
                     <IconButton>
-                        <SearchIcon/>
-                    </IconButton>
-                    <IconButton>
-                        <AttachFileIcon/>
-                    </IconButton>
-                    <IconButton>
-                        <MoreVertIcon/>
+                        <TocIcon/>
                     </IconButton>
                 </div>
+                <DashBoard/>
             </div>
-            <div className="chat__body">
-                {
-                messages.map((message) => (
-                    <p key={
-                            message.name
-                        }
-                        className={
-                            `chat__message ${
-                                message.author_id === user.uid && `chat__receiver`
-                            }`
-                    }>
-                        <span className={`chat__username ${message.author_id === user.uid && 'hidden'}`}>
-                            {
-                            message.author_name
-                        }</span>
-                        {
-                        message.message
-                    }
-                        <span className="chat__timestamp ">
-                            {
-                            message.timestamp && new Date(message.timestamp?.toDate()).toUTCString()
-                        } </span>
-                    </p>
-                ))
-            } </div>
-            <div className="chat__footer">
-                <div className="chat__footerLeft">
-                    <SentimentVerySatisfiedIcon/>
+        )
+    }
+
+    return (
+        <div className="chat__wrapper">
+            <SwipeableDrawer
+                anchor={'left'}
+                open={anchorToggle['left']}
+                onClose={toggleDrawer('left', false)}
+                onOpen={toggleDrawer('left', true)}
+            >
+                {renderMobileNav()}
+            </SwipeableDrawer>
+            <div className="chat">
+                <div className="mobileNavDiv" onClick={toggleDrawer('left', true)}>
+                    <IconButton>
+                        <TocIcon/>
+                    </IconButton>
                 </div>
-                <form>
-                    <input value={input}
-                        onChange={
-                            (event) => setInput(event.target.value)
+                <div className="chat__header">
+                    <Avatar/>
+                    <div className="chat__headerLeft">
+                        <h3>{roomName}</h3>
+                        <p>
+                            { messages.length === 0 ? '' : 'Last seen ' + new Date(messages[messages.length - 1]?.timestamp?.toDate()).toUTCString()}
+                        </p>
+                    </div>
+                    <div className="chat__headerRight">
+                        <IconButton>
+                            <SearchIcon/>
+                        </IconButton>
+                        <IconButton>
+                            <AttachFileIcon/>
+                        </IconButton>
+                        <IconButton>
+                            <MoreVertIcon/>
+                        </IconButton>
+                    </div>
+                </div>
+                <div className="chat__body">
+                    {
+                    messages.map((message) => (
+                        <p key={
+                                message.name
+                            }
+                            className={
+                                `chat__message ${
+                                    message.author_id === user.uid && `chat__receiver`
+                                }`
+                        }>
+                            <span className={`chat__username ${message.author_id === user.uid && 'hidden'}`}>
+                                {
+                                message.author_name
+                            }</span>
+                            {
+                            message.message
                         }
-                        placeholder="Type your message here"/>
-                    <button type="submit"
-                        onClick={sendMessage}>
-                        <SendIcon/>
-                    </button>
-                </form>
-                <MicIcon/>
+                            <span className="chat__timestamp ">
+                                {
+                                message.timestamp && new Date(message.timestamp?.toDate()).toUTCString()
+                            } </span>
+                        </p>
+                    ))
+                } </div>
+                <div className="chat__footer">
+                    <div className="chat__footerLeft">
+                        <SentimentVerySatisfiedIcon/>
+                    </div>
+                    <form>
+                        <input value={input}
+                            onChange={
+                                (event) => setInput(event.target.value)
+                            }
+                            placeholder="Type your message here"/>
+                        <button type="submit"
+                            onClick={sendMessage}>
+                            <SendIcon/>
+                        </button>
+                    </form>
+                    <MicIcon/>
+                </div>
             </div>
         </div>
     )

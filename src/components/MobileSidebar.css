@@ -1,0 +1,30 @@
+.mobileSidebar__wrapper {
+    display: grid;
+    place-items: center;
+    padding: 5px;
+}
+
+.mobileSidebar {
+    display: flex;
+    flex-direction: column;
+    align-self: center;
+    justify-content: center;
+}
+
+.mobileSidebar > .MuiButton-root {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.mobileSidebar__header {
+    display: flex;
+	align-items: center;
+    justify-content: space-between;
+    border-left: 1px solid lightgray;
+	border-right: 1px solid lightgray;
+	height: 55px;
+}
+
+.mobileSidebar__header > .MuiAvatar-root {
+    margin-left: 10px;
+}

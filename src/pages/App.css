@@ -3,12 +3,11 @@
 }
 
 .app {
-    background-color: #e9e9e3;
-    height: 100vh;
     display: grid;
+    height: 100vh;
+    background-color: #e9e9e3;
     place-items: center;
     overflow-x: hidden;
-    min-width: 750px;
 }
   
 .app__container {
@@ -17,4 +16,11 @@
     width: 90vw;
     height: 90vh;
     background-color: rgb(250, 250, 250);
+}
+
+@media (max-width: 800px) {
+    .app__container{
+        width: 100vw;
+        height: 100vh;
+    }
 }

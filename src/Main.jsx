@@ -2,14 +2,14 @@ import App from './pages/App'
 import Login from './pages/Login'
 import {Switch, BrowserRouter as Router, Route} from "react-router-dom";
 import './Main.css';
-import {useStateValue} from './contexts/StateProvier';
+import {useStateContext} from './contexts/StateProvier';
 
 function Main() {
     const [
         {
             user
         },
-    ] = useStateValue();
+    ] = useStateContext();
 
     return (
         <div> {
