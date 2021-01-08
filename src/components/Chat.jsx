@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import firebase from 'firebase'
 import { useParams } from 'react-router-dom';
 import { useStateContext } from '../contexts/StateProvier';
@@ -29,6 +29,7 @@ function Chat() {
     const [messages, setMessages] = useState([]);
     const [{user},] = useStateContext();
     const [leftAnchor, setLeftAnchor] = useState(false);
+    const lastMsgRef = useRef(null);
   
     const toggleDrawer = (open) => (event) => {
       if (event && event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
@@ -56,7 +57,9 @@ function Chat() {
                 .doc(roomId)
                 .collection("messages")
                 .orderBy("timestamp", "asc")
-                .onSnapshot((snapshot) => setMessages(snapshot.docs.map((doc) => doc.data())));
+                .onSnapshot(snapshot => {
+                    setMessages(snapshot.docs.map(doc => ({id: doc.id, data: doc.data()})))
+                })
 
             return() => {
                 nameListener();
@@ -64,6 +67,16 @@ function Chat() {
             }
         }
     }, [roomId]);
+
+    const scrollToBottom = () => {
+        if (lastMsgRef.current) {
+            lastMsgRef.current.scrollIntoView({
+                behavior: "smooth" 
+            })
+        }
+    };
+
+    useEffect(scrollToBottom, [messages]);
 
     const sendMessage = (event) => {
         event.preventDefault();
@@ -142,16 +155,17 @@ function Chat() {
                 </div>
                 <div className="chat__body">
                     {messages.map((message) => (
-                    <p key={message.name} className={`chat__message ${message.author_id === user.user_id && `chat__receiver`}`}>
-                        <span className={`chat__username ${message.author_id === user.user_id && 'hidden'}`}>
-                            {message.author_name}
+                    <p  key={message.id} className={`chat__message ${message.data.author_id === user.user_id && `chat__receiver`}`}>
+                        <span className={`chat__username ${message.data.author_id === user.user_id && 'hidden'}`}>
+                            {message.data.author_name}
                         </span>
-                        {message.message}
+                        {message.data.message}
                         <span className="chat__timestamp ">
-                            {message.timestamp && new Date(message.timestamp?.toDate()).toUTCString()}
+                            {message.data.timestamp && new Date(message.data.timestamp?.toDate()).toUTCString()}
                         </span>
                     </p>
-                    ))} 
+                    ))}
+                    <div ref={lastMsgRef} />
                 </div>
                 <div className="chat__footer">
                     <div className="chat__footerLeft">
