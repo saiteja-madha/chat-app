@@ -21,7 +21,7 @@
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	background-color: #2c3e50;
+	background-color: #23272a;
 	height: 70px;
 	border-top-left-radius: 15px;
 }
@@ -44,7 +44,11 @@
     padding: 10;
 }
 
-.sidebar__iconBtn, .MuiSvgIcon-root {
+.sidebar__iconBtn {
+    color: gray!important;
+}
+
+.sidebar__iconBtn:hover {
     color: white !important;
 }
 

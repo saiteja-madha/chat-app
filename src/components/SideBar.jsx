@@ -55,7 +55,7 @@ function SideBar() {
                     }/>
                     <div className="sidebar__headerRight">
                         <IconButton onClick={handleToggle}>
-                            {isChatRoom ? <ToggleOffIcon /> : <ToggleOnIcon/>}
+                            {isChatRoom ? <ToggleOffIcon className="sidebar__iconBtn"/> : <ToggleOnIcon className="sidebar__iconBtn"/>}
                         </IconButton>
                         <IconButton>
                             <MoreVertIcon className="sidebar__iconBtn"/>

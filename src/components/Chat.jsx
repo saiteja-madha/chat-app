@@ -1,11 +1,14 @@
-import React, {useEffect, useState} from 'react'
+import React, { useEffect, useState } from 'react'
 import firebase from 'firebase'
-import {useParams} from 'react-router-dom';
-import {db} from '../utils/firebase';
-import {useStateContext} from '../contexts/StateProvier';
+import { useParams } from 'react-router-dom';
+import { useStateContext } from '../contexts/StateProvier';
 import MobileSideBar from './MobileSideBar';
 import DashBoard from './DashBoard';
 import './Chat.css'
+
+// Utils
+import { validateMessage } from '../utils/validations';
+import { db } from '../utils/firebase';
 
 // Material UI
 import {Avatar, IconButton} from "@material-ui/core";
@@ -19,6 +22,7 @@ import SwipeableDrawer from '@material-ui/core/SwipeableDrawer';
 import TocIcon from '@material-ui/icons/Toc';
 
 function Chat() {
+
     const [messageInput, setMessageInput] = useState("");
     const {roomId} = useParams();
     const [roomName, setRoomName] = useState("");
@@ -63,10 +67,18 @@ function Chat() {
 
     const sendMessage = (event) => {
         event.preventDefault();
-        db.collection("rooms")
+
+        if (validateMessage(messageInput)) {
+            db.collection("rooms")
             .doc(roomId)
             .collection("messages")
-            .add({author_id: user.user_id, author_name: user.display_name, message: messageInput, timestamp: firebase.firestore.FieldValue.serverTimestamp()});
+            .add({
+                author_id: user.user_id, 
+                author_name: user.display_name, 
+                message: messageInput, 
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        }
 
         setMessageInput("");
     };
@@ -117,13 +129,13 @@ function Chat() {
                         </p>
                     </div>
                     <div className="chat__headerRight">
-                        <IconButton>
+                        <IconButton className="chatHeader__iconBtn">
                             <SearchIcon/>
                         </IconButton>
-                        <IconButton>
+                        <IconButton className="chatHeader__iconBtn">
                             <AttachFileIcon/>
                         </IconButton>
-                        <IconButton>
+                        <IconButton className="chatHeader__iconBtn">
                             <MoreVertIcon/>
                         </IconButton>
                     </div>
@@ -143,19 +155,28 @@ function Chat() {
                 </div>
                 <div className="chat__footer">
                     <div className="chat__footerLeft">
-                        <SentimentVerySatisfiedIcon/>
+                        <IconButton className="footer__iconBtn">
+                            <SentimentVerySatisfiedIcon/>
+                        </IconButton>
                     </div>
-                    <form>
+                    <form className="chat__footerForm">
                         <input 
                             value={messageInput}
                             onChange={event => setMessageInput(event.target.value)}
                             placeholder="Type your message here"
                         />
-                        <button type="submit"onClick={sendMessage}>
-                            <SendIcon/>
-                        </button>
+                        <div className="chat__footerFormRight">
+                            <IconButton type="submit" onClick={sendMessage} className="footer__iconBtn">
+                                <SendIcon/>
+                            </IconButton>
+                            <IconButton className="footer__iconBtn">
+                                <AttachFileIcon/>
+                            </IconButton>
+                            <IconButton className="footer__iconBtn">
+                                <MicIcon/>
+                            </IconButton>
+                        </div>
                     </form>
-                    <MicIcon/>
                 </div>
             </div>
         </div>
