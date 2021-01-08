@@ -8,12 +8,11 @@ import {Link} from 'react-router-dom'
 import { useStateContext } from '../contexts/StateProvier';
 
 function SideBarChat({ id }) {
-
+    
     const [{ user },] = useStateContext();
-
     const [messages, setmessages] = useState("");
-    const [room, setRoom] = useState(null);
-    const [contact, setContact] = useState("");
+    const [chat, setChat] = useState(null);
+    const [contactName, setContactName] = useState("");
 
     useEffect(() => {
         if (id) {
@@ -27,17 +26,17 @@ function SideBarChat({ id }) {
                 );
 
             db.collection("chats").doc(id.trim()).onSnapshot(snapshot => 
-                setRoom(snapshot.data())
+                setChat(snapshot.data())
             )
         }
     }, [id]);
 
     useEffect(() =>{
-        if (room) {
-            const contactId = (room.members[0] === user.user_id) ? room.members[1] : room.members[0];
-            db.collection("users").doc(contactId.trim()).onSnapshot(snapshot => setContact(snapshot.data().display_name));
+        if (chat) {
+            const contactId = (chat.members[0] === user.user_id) ? chat.members[1] : chat.members[0];
+            db.collection("users").doc(contactId.trim()).onSnapshot(snapshot => setContactName(snapshot.data().display_name));
         }
-    }, [room, user])
+    }, [chat, user])
 
     return (
         <Link>
@@ -46,7 +45,7 @@ function SideBarChat({ id }) {
                 <div className="sidebarChat__content">
                     <div className="sidebarChat__topRow">
                         <div className="sidebarChat__author">
-                            {contact} 
+                            {contactName} 
                         </div>
                         <div className="sidebarChat__lastSeen">
                             { messages.length === 0 ? '' : new Date(messages[messages.length - 1]?.timestamp?.toDate()).toDateString()}

@@ -14,7 +14,7 @@ import ToggleOnIcon from '@material-ui/icons/ToggleOn';
 function SideBar() {
     const [isChatRoom, setIsChatRoom] = useState(true);
     const [rooms, setRooms] = useState([]);
-    const [groups, setGroups] = useState([]);
+    const [conversations, setConversations] = useState([]);
     const [{ user },] = useStateContext();
 
     useEffect(() => {
@@ -30,7 +30,7 @@ function SideBar() {
         const unsubscribe = db.collection("users")
             .doc(user.user_id)
             .onSnapshot(snapshot => {
-                setGroups(snapshot.data().groups)
+                setConversations(snapshot.data().conversations)
             })
 
         return () => {
@@ -77,7 +77,7 @@ function SideBar() {
                             id={room.id}
                         />)) 
                         : 
-                    (groups.map(group => 
+                    (conversations.map(group => 
                         <SideBarChat key={group}
                             id={group}
                         />)) 
