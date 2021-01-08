@@ -16,8 +16,7 @@ function Login() {
                     display_name: user.displayName,
                     email: user.email,
                     email_verified: user.emailVerified,
-                    photo_url: user.photoURL,
-                    private_rooms: [],
+                    photo_url: user.photoURL
                 };
                 db.collection("users").doc(user.uid).set(newUser).then(
                     dispatch({type: actionTypes.SET_USER, user: newUser})
