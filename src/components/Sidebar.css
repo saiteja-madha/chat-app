@@ -61,7 +61,7 @@
 }
 
 .sidebar__chatGroups::-webkit-scrollbar {
-    width: 0.5em;
+    width: 0.3em;
 }
  
 .sidebar__chatGroups::-webkit-scrollbar-track {
@@ -70,9 +70,9 @@
 }
  
 .sidebar__chatGroups::-webkit-scrollbar-thumb {
-	background-color: #34495e;
-	outline: 1px solid #34495e;
-  }
+	background-color: #34495eb0;
+	outline: 1px solid #34495eb0;
+}
 
 @media (max-width: 800px) {
 	.sidebar__wrapper {
