@@ -4,9 +4,11 @@ import './SideBarChat.css'
 
 // Material UI
 import {Avatar} from '@material-ui/core'
-import {Link} from 'react-router-dom'
+import { useStateContext } from '../contexts/StateProvier';
+import { actionTypes } from '../contexts/reducer';
 
 function SideBarChat({ id }) {
+    const [, dispatch] = useStateContext();
     const [messages, setmessages] = useState("");
     const [room, setRoom] = useState(null);
 
@@ -27,25 +29,33 @@ function SideBarChat({ id }) {
         }
       }, [id]);
 
+    const setConversation = () => {
+        dispatch({
+            type: actionTypes.SET_ROOMDATA,
+            roomData: {
+                id: id,
+                type: 1,
+            }
+        })
+    };
+
     return (
-        <Link className="" to={`/rooms/${id}`}>
-            <div className="sidebarChat">
-                <Avatar className="sidebarChat__avatar"/>
-                <div className="sidebarChat__content">
-                    <div className="sidebarChat__topRow">
-                        <div className="sidebarChat__author">
-                            {room?.name} 
-                        </div>
-                        <div className="sidebarChat__lastSeen">
-                            { messages.length === 0 ? '' : new Date(messages[messages.length - 1]?.timestamp?.toDate()).toDateString()}
-                        </div>
+        <div className="sidebarChat" onClick={setConversation}>
+            <Avatar className="sidebarChat__avatar"/>
+            <div className="sidebarChat__content">
+                <div className="sidebarChat__topRow">
+                    <div className="sidebarChat__author">
+                        {room?.name} 
                     </div>
-                    <div className="sidebarChat__chat">
-                    {messages[0]?.message}
+                    <div className="sidebarChat__lastSeen">
+                        { messages.length === 0 ? '' : new Date(messages[messages.length - 1]?.timestamp?.toDate()).toDateString()}
                     </div>
                 </div>
+                <div className="sidebarChat__chat">
+                {messages[0]?.message}
+                </div>
             </div>
-        </Link>
+        </div>
     )
 }
 

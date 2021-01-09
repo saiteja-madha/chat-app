@@ -3,6 +3,7 @@ import SideBarChat from './SideBarChat'
 import SideBarGroup from './SideBarGroup'
 import { useStateContext } from '../contexts/StateProvier'
 import { db } from '../utils/firebase'
+import firebase from 'firebase'
 import "./SideBar.css";
 
 // Material UI
@@ -30,7 +31,7 @@ function SideBar() {
         const unsubscribe = db.collection("users")
             .doc(user.user_id)
             .onSnapshot(snapshot => {
-                setConversations(snapshot.data().conversations)
+                setConversations(snapshot.data()?.conversations)
             })
 
         return () => {
@@ -40,12 +41,42 @@ function SideBar() {
     }, [user])
 
     const handleButtonClick = () => {
-        const name = prompt("Please enter name for chat room")
-        if (name) {
-            db.collection("rooms").add({name: name});
+        if (isChatRoom) {
+            const name = prompt("Please enter name for chat room")
+            if (name) {
+                db.collection("rooms").add({name: name});
+            }
+        } else {
+            const email = prompt("Please enter recepient's email to start a conversation")
+            if (email) {
+                db.collection("users").where("email", "==", email).limit(1).get()
+                .then(snap => {
+                    if (snap.empty) {
+                        alert("No Matching users found!")
+                    } else {
+                        snap.forEach(targetDoc => {
+                            db.collection("chats").add({
+                                members: [user.user_id, targetDoc.data().user_id],
+                                started_by: user.user_id,
+                                started_at: firebase.firestore.FieldValue.serverTimestamp()
+                            }).then(createdDoc => {
+                                const targetJsonData= targetDoc.data().conversations || []
+                                targetJsonData.push(createdDoc.id)
+                                targetDoc.ref.set({conversations: targetJsonData}, {merge: true});
+                                db.collection("users").doc(user.user_id).get().then(userDoc => {
+                                    const userJsonData= userDoc.data().conversations || [];
+                                    userJsonData.push(createdDoc.id);
+                                    userDoc.ref.set({conversations: userJsonData}, {merge: true});
+                                });
+                            })
+
+                        })
+                    }
+                });
+            }
         }
     }
-
+    
     const handleToggle = () => {
         setIsChatRoom(prev => !prev);
     }
@@ -72,12 +103,12 @@ function SideBar() {
                     </Button>
                 </div>
                 <div className="sidebar__chatGroups">
-                    {isChatRoom ? (rooms.map(room => 
+                    {isChatRoom ? (rooms?.map(room => 
                         <SideBarGroup key={room.id}
                             id={room.id}
                         />)) 
                         : 
-                    (conversations.map(group => 
+                    (conversations?.map(group => 
                         <SideBarChat key={group}
                             id={group}
                         />)) 

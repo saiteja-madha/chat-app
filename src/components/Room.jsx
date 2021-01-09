@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef } from 'react'
 import firebase from 'firebase'
 import { useStateContext } from '../contexts/StateProvier';
 import MobileSideBar from './MobileSideBar';
-import DashBoard from './DashBoard';
 import './Chat.css'
 
 // Utils
@@ -20,16 +19,15 @@ import MicIcon from "@material-ui/icons/Mic";
 import SwipeableDrawer from '@material-ui/core/SwipeableDrawer';
 import TocIcon from '@material-ui/icons/Toc';
 
-function Chat() {
+function Room() {
 
     const [messageInput, setMessageInput] = useState("");
+    const [{roomData}, ] = useStateContext();
+    const [roomName, setRoomName] = useState("");
     const [messages, setMessages] = useState([]);
     const [{user},] = useStateContext();
     const [leftAnchor, setLeftAnchor] = useState(false);
     const lastMsgRef = useRef(null);
-    const [{ roomData }, ] = useStateContext();
-    const [chat, setChat] = useState(null);
-    const [contactName, setContactName] = useState("");
   
     const toggleDrawer = (open) => (event) => {
       if (event && event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
@@ -49,7 +47,11 @@ function Chat() {
 
     useEffect(() => {
         if (roomData.id) {
-            const msgListener = db.collection("chats")
+            const nameListener = db.collection("rooms")
+                .doc(roomData.id)
+                .onSnapshot((snapshot) => setRoomName(snapshot.data()?.name));
+
+            const msgListener = db.collection("rooms")
                 .doc(roomData.id)
                 .collection("messages")
                 .orderBy("timestamp", "asc")
@@ -58,29 +60,11 @@ function Chat() {
                 })
 
             return() => {
+                nameListener();
                 msgListener();
             }
         }
     }, [roomData.id]);
-
-    useEffect(() =>{
-        if (roomData.id) {
-            const unsubscribe = db.collection("chats").doc(roomData.id).onSnapshot(snapshot => setChat(snapshot.data()));
-            return () => {
-                unsubscribe();
-            }
-        }
-    }, [roomData.id]);
-
-    useEffect(() => {
-        if (chat) {
-            const contactId = (chat.members[0] === user.user_id) ? chat.members[1] : chat.members[0];
-            const unsubscribe = db.collection("users").doc(contactId.trim()).onSnapshot(snapshot => setContactName(snapshot.data().display_name));
-            return () => {
-                unsubscribe();
-            }
-        }
-    }, [chat, user])
 
     const scrollToBottom = () => {
         if (lastMsgRef.current) {
@@ -96,7 +80,7 @@ function Chat() {
         event.preventDefault();
 
         if (validateMessage(messageInput)) {
-            db.collection("chats")
+            db.collection("rooms")
             .doc(roomData.id)
             .collection("messages")
             .add({
@@ -109,27 +93,6 @@ function Chat() {
 
         setMessageInput("");
     };
-
-    if (!roomData.id) {
-        return (
-            <div className="chat__wrapper">
-                <SwipeableDrawer
-                    anchor={'left'}
-                    open={leftAnchor}
-                    onClose={toggleDrawer(false)}
-                    onOpen={toggleDrawer(true)}
-                >
-                    {renderMobileNav()}
-                </SwipeableDrawer>
-                <div className="mobileNavDiv" onClick={toggleDrawer(true)}>
-                    <IconButton>
-                        <TocIcon/>
-                    </IconButton>
-                </div>
-                <DashBoard/>
-            </div>
-        )
-    }
 
     return (
         <div className="chat__wrapper">
@@ -150,7 +113,7 @@ function Chat() {
                 <div className="chat__header">
                     <Avatar/>
                     <div className="chat__headerLeft">
-                        <h3>{contactName}</h3>
+                        <h3>{roomName}</h3>
                         <p>
                             { messages.length === 0 ? '' : 'Last seen ' + new Date(messages[messages.length - 1]?.data.timestamp?.toDate()).toUTCString()}
                         </p>
@@ -211,4 +174,4 @@ function Chat() {
     )
 }
 
-export default Chat
+export default Room
