@@ -1,0 +1,18 @@
+.MuiDrawer-paperAnchorLeft {
+    width: 300px !important;
+}
+
+.mobileNavDiv {
+    background-color: black;
+    color: white;
+    display: none;
+}
+
+@media (max-width: 800px) {
+    .mobileNavDiv {
+        display: block;
+    }
+    .mobileNavDiv > .MuiIconButton-root {
+        color: white;
+    }
+}

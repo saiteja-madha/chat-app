@@ -201,20 +201,8 @@
     display: none;
 }
 
-.mobileNavDiv {
-    background-color: black;
-    color: white;
-    display: none;
-}
-
 @media (max-width: 800px) {
 	.chat__wrapper {
         flex: 1;
-    }
-    .mobileNavDiv {
-        display: block;
-    }
-    .mobileNavDiv > .MuiIconButton-root {
-        color: white;
     }
 }

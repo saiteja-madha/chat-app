@@ -1,8 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react'
 import firebase from 'firebase'
 import { useStateContext } from '../contexts/StateProvier';
-import MobileSideBar from './MobileSideBar';
-import DashBoard from './DashBoard';
 import './Chat.css'
 
 // Utils
@@ -17,35 +15,16 @@ import AttachFileIcon from "@material-ui/icons/AttachFile";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import SentimentVerySatisfiedIcon from "@material-ui/icons/SentimentVerySatisfied";
 import MicIcon from "@material-ui/icons/Mic";
-import SwipeableDrawer from '@material-ui/core/SwipeableDrawer';
-import TocIcon from '@material-ui/icons/Toc';
 
 function Chat() {
 
     const [messageInput, setMessageInput] = useState("");
     const [messages, setMessages] = useState([]);
     const [{user},] = useStateContext();
-    const [leftAnchor, setLeftAnchor] = useState(false);
     const lastMsgRef = useRef(null);
     const [{ roomData }, ] = useStateContext();
     const [chat, setChat] = useState(null);
     const [contactName, setContactName] = useState("");
-  
-    const toggleDrawer = (open) => (event) => {
-      if (event && event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
-        return;
-      }
-      setLeftAnchor(open);
-    };
-  
-    const renderMobileNav = () => (
-      <div
-        onClick={toggleDrawer(false)}
-        onKeyDown={toggleDrawer(false)}
-      >
-          <MobileSideBar/>
-      </div>
-    );
 
     useEffect(() => {
         if (roomData.id) {
@@ -110,43 +89,9 @@ function Chat() {
         setMessageInput("");
     };
 
-    if (!roomData.id) {
-        return (
-            <div className="chat__wrapper">
-                <SwipeableDrawer
-                    anchor={'left'}
-                    open={leftAnchor}
-                    onClose={toggleDrawer(false)}
-                    onOpen={toggleDrawer(true)}
-                >
-                    {renderMobileNav()}
-                </SwipeableDrawer>
-                <div className="mobileNavDiv" onClick={toggleDrawer(true)}>
-                    <IconButton>
-                        <TocIcon/>
-                    </IconButton>
-                </div>
-                <DashBoard/>
-            </div>
-        )
-    }
-
     return (
         <div className="chat__wrapper">
-            <SwipeableDrawer
-                anchor={'left'}
-                open={leftAnchor}
-                onClose={toggleDrawer(false)}
-                onOpen={toggleDrawer(true)}
-            >
-                {renderMobileNav()}
-            </SwipeableDrawer>
             <div className="chat">
-                <div className="mobileNavDiv" onClick={toggleDrawer(true)}>
-                    <IconButton>
-                        <TocIcon/>
-                    </IconButton>
-                </div>
                 <div className="chat__header">
                     <Avatar/>
                     <div className="chat__headerLeft">
