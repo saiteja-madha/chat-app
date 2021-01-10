@@ -23,3 +23,8 @@ yarn-debug.log*
 yarn-error.log*
 .eslintcache
 src/config.js
+functions/firebase-debug.log
+functions/ui-debug.log
+src/config.js
+.firebase/hosting.YnVpbGQ.cache
+.firebase/hosting.YnVpbGQ.cache
