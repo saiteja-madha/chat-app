@@ -97,7 +97,7 @@ function Chat() {
                 .add({
                     author_id: "chatbot", 
                     author_name: "ChatBot", 
-                    message: res, 
+                    message: res.message, 
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
             });

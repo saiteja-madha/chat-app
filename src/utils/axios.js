@@ -9,10 +9,16 @@ const chatBotInstance = axios.create({
 
 const chatbot = (userId, message, res) => {
     chatBotInstance.get(`${userId}/${message}`).then(
-        data =>  res(data.data.response)
+        data =>  res({
+            success: true,
+            message: data.data.response
+        })
     ).catch(err => {
         console.log(err);
-        alert("Err, I am facing trouble chatting with you. Try again later!");
+        res({
+            success: true,
+            message: "Eww, I am facing trouble chatting with you. Try again later!"
+        });
     }
     );
 }
