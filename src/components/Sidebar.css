@@ -57,11 +57,31 @@
 }
 
 .sidebar__chatGroups {
-	flex: 1;
+	flex: 0.25;
     flex-grow: 1;
     background-color: whitesmoke;
 	overflow-y: scroll;
 	border-bottom-left-radius: 15px;
+}
+
+.sidebar__chatMsgs {
+    background-color: whitesmoke;
+	overflow-y: scroll;
+	flex: 1;
+}
+
+.sidebar__chatMsgs::-webkit-scrollbar {
+    width: 0.3em;
+}
+ 
+.sidebar__chatMsgs::-webkit-scrollbar-track {
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+	box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+}
+ 
+.sidebar__chatMsgs::-webkit-scrollbar-thumb {
+	background-color: #34495eb0;
+	outline: 1px solid #34495eb0;
 }
 
 .sidebar__chatGroups::-webkit-scrollbar {

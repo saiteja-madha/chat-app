@@ -1,19 +1,18 @@
 import React, { useState, useEffect } from "react";
 import SideBarChat from './SideBarChat'
+import SideBarGroup from './SideBarGroup'
 import { useStateContext } from '../contexts/StateProvier'
 import { db } from '../utils/firebase'
+import firebase from 'firebase'
 import "./SideBar.css";
 
 // Material UI
 import { Avatar, Button, IconButton } from "@material-ui/core";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
-import ToggleOffIcon from '@material-ui/icons/ToggleOff';
-import ToggleOnIcon from '@material-ui/icons/ToggleOn';
 
 function SideBar() {
-    const [isChatRoom, setIsChatRoom] = useState(true);
     const [rooms, setRooms] = useState([]);
-    const [dms, setDms] = useState([]);
+    const [conversations, setConversations] = useState([]);
     const [{ user },] = useStateContext();
 
     useEffect(() => {
@@ -26,24 +25,53 @@ function SideBar() {
     }, [])
 
     useEffect(() => {
-        const unsubscribe = db.collection("users").doc(user.user_id).collection("private_rooms").onSnapshot(snapshot => {
-            setDms(snapshot.docs.map(doc => ({id: doc.data().id, name:doc.data().name})))
-        })
+        const unsubscribe = db.collection("users")
+            .doc(user.user_id)
+            .onSnapshot(snapshot => {
+                setConversations(snapshot.data()?.conversations)
+            })
+
         return () => {
             unsubscribe();
         }
         
     }, [user])
 
-    const handleButtonClick = () => {
+    const handleNewGroup = () => {
         const name = prompt("Please enter name for chat room")
         if (name) {
             db.collection("rooms").add({name: name});
         }
     }
 
-    const handleToggle = () => {
-        setIsChatRoom(prev => !prev);
+    const handleNewChat = () => {
+        const email = prompt("Please enter recepient's email to start a conversation")
+        if (email) {
+            db.collection("users").where("email", "==", email).limit(1).get()
+            .then(snap => {
+                if (snap.empty) {
+                    alert("No Matching users found!")
+                } else {
+                    snap.forEach(targetDoc => {
+                        db.collection("chats").add({
+                            members: [user.user_id, targetDoc.data().user_id],
+                            started_by: user.user_id,
+                            started_at: firebase.firestore.FieldValue.serverTimestamp()
+                        }).then(createdDoc => {
+                            const targetJsonData= targetDoc.data().conversations || []
+                            targetJsonData.push(createdDoc.id)
+                            targetDoc.ref.set({conversations: targetJsonData}, {merge: true});
+                            db.collection("users").doc(user.user_id).get().then(userDoc => {
+                                const userJsonData= userDoc.data().conversations || [];
+                                userJsonData.push(createdDoc.id);
+                                userDoc.ref.set({conversations: userJsonData}, {merge: true});
+                            });
+                        })
+
+                    })
+                }
+            });
+        }
     }
 
     return (
@@ -54,32 +82,34 @@ function SideBar() {
                         user ? user.photo_url : ""
                     }/>
                     <div className="sidebar__headerRight">
-                        <IconButton onClick={handleToggle}>
-                            {isChatRoom ? <ToggleOffIcon className="sidebar__iconBtn"/> : <ToggleOnIcon className="sidebar__iconBtn"/>}
-                        </IconButton>
                         <IconButton>
                             <MoreVertIcon className="sidebar__iconBtn"/>
                         </IconButton>
                     </div>
                 </div>
-                <div className="sidebar__newRoom" onClick={handleButtonClick}>
+                <div className="sidebar__newRoom" onClick={handleNewChat}>
                     <Button variant="contained" color="primary">
-                        {`${isChatRoom ? 'New chat-room' : 'New conversation'}`} 
+                        New conversation
+                    </Button>
+                </div>
+                <div className="sidebar__chatMsgs">
+                    {conversations?.map(group => 
+                        <SideBarChat key={group}
+                            id={group}
+                        />)
+                    }
+                </div>
+                <div className="sidebar__newRoom" onClick={handleNewGroup}>
+                    <Button variant="contained" color="primary">
+                        New chat-room
                     </Button>
                 </div>
                 <div className="sidebar__chatGroups">
-                    {isChatRoom ? (rooms.map(room => 
-                        <SideBarChat key={room.id}
+                    { rooms?.map(room => 
+                        <SideBarGroup key={room.id}
                             id={room.id}
-                            name={room.data.name}
-                        />)) 
-                        : 
-                    (dms.map(dms => 
-                        <SideBarChat key={dms.id}
-                            id={dms.id}
-                            name={dms.name}
-                        />)) 
-                    } 
+                        />)
+                    }
                 </div>
             </div>
         </div>

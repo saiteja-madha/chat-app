@@ -7,7 +7,7 @@ function DashBoard() {
     return (
         <div className="dashboard">
             <img src="https://i.imgur.com/uUqkiYo.png" alt="dahsboard"/>
-            <span>Hello {user?.displayName}</span>
+            <span>Hello {user?.display_name}</span>
             <span>Click on a chat-room</span>
             <span>Start a new conversation</span>
         </div>

@@ -1,28 +1,24 @@
 import React, {useState, useEffect} from "react";
-
-import "./MobileSidebar.css";
 import {useStateContext} from '../contexts/StateProvier'
+import SideBarChat from "./SideBarChat";
+import SideBarGroup from "./SideBarGroup";
+import "./MobileSidebar.css";
 
 // Material UI
-import {Avatar, Divider, IconButton} from "@material-ui/core";
-import ChatIcon from "@material-ui/icons/Chat";
-import DonutLargeIcon from "@material-ui/icons/DonutLarge";
+import { Avatar, Button, IconButton } from "@material-ui/core";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
-import Button from "@material-ui/core/Button";
+import ToggleOffIcon from '@material-ui/icons/ToggleOff';
+import ToggleOnIcon from '@material-ui/icons/ToggleOn';
 
 // Utils
 import {db} from '../utils/firebase'
-import SideBarChat from "./SideBarChat";
+import firebase from 'firebase'
 
 function MobileSideBar() {
     const [isChatRoom, setIsChatRoom] = useState(true);
     const [rooms, setRooms] = useState([]);
-
-    const [
-        {
-            user
-        },
-    ] = useStateContext();
+    const [conversations, setConversations] = useState([]);
+    const [{ user },] = useStateContext();
 
     useEffect(() => {
         const unsubscribe = db.collection("rooms").onSnapshot(snapshot => {
@@ -33,53 +29,93 @@ function MobileSideBar() {
         }
     }, [])
 
-    const handleButtonClick = () => {
-        const name = prompt("Please enter name for chat room")
+    useEffect(() => {
+        const unsubscribe = db.collection("users")
+            .doc(user.user_id)
+            .onSnapshot(snapshot => {
+                setConversations(snapshot.data()?.conversations)
+            })
 
-        if (name) {
-            db.collection("rooms").add({name: name});
+        return () => {
+            unsubscribe();
+        }
+        
+    }, [user])
+
+    const handleButtonClick = () => {
+        if (isChatRoom) {
+            const name = prompt("Please enter name for chat room")
+            if (name) {
+                db.collection("rooms").add({name: name});
+            }
+        } else {
+            const email = prompt("Please enter recepient's email to start a conversation")
+            if (email) {
+                db.collection("users").where("email", "==", email).limit(1).get()
+                .then(snap => {
+                    if (snap.empty) {
+                        alert("No Matching users found!")
+                    } else {
+                        snap.forEach(targetDoc => {
+                            db.collection("chats").add({
+                                members: [user.user_id, targetDoc.data().user_id],
+                                started_by: user.user_id,
+                                started_at: firebase.firestore.FieldValue.serverTimestamp()
+                            }).then(createdDoc => {
+                                const targetJsonData= targetDoc.data().conversations || []
+                                targetJsonData.push(createdDoc.id)
+                                targetDoc.ref.set({conversations: targetJsonData}, {merge: true});
+                                db.collection("users").doc(user.user_id).get().then(userDoc => {
+                                    const userJsonData= userDoc.data().conversations || [];
+                                    userJsonData.push(createdDoc.id);
+                                    userDoc.ref.set({conversations: userJsonData}, {merge: true});
+                                });
+                            })
+    
+                        })
+                    }
+                });
+            }
         }
     }
 
-    const handleSwitch = () => {
+    const handleToggle = () => {
         setIsChatRoom(prev => !prev);
     }
 
     return (
         <div className="mobileSidebar__wrapper">
-            <div className="mobileSidebar">
-                <div className="mobileSidebar__header">
+            <div className="sidebar">
+                <div className="sidebar__header">
                     <Avatar src={
-                        user ? user.photoURL : ""
+                        user ? user.photo_url : ""
                     }/>
-                    <div className="mobileSidebar__headerRight">
-                        <IconButton>
-                            <DonutLargeIcon onClick={handleSwitch}
-                                className="mobileSidebar__iconBtn"/>
+                    <div className="sidebar__headerRight">
+                        <IconButton onClick={handleToggle}>
+                            {isChatRoom ? <ToggleOffIcon className="sidebar__iconBtn"/> : <ToggleOnIcon className="sidebar__iconBtn"/>}
                         </IconButton>
                         <IconButton>
-                            <ChatIcon className="mobileSidebar__iconBtn"/>
-                        </IconButton>
-                        <IconButton>
-                            <MoreVertIcon className="mobileSidebar__iconBtn"/>
+                            <MoreVertIcon className="sidebar__iconBtn"/>
                         </IconButton>
                     </div>
                 </div>
-                <Divider />
                 <div className="sidebar__newRoom" onClick={handleButtonClick}>
                     <Button variant="contained" color="primary">
                         {`${isChatRoom ? 'New chat-room' : 'New conversation'}`} 
                     </Button>
                 </div>
-                <div className="mobileSidebar__chatGroups">
-                    {
-                    isChatRoom ? (rooms.map(room => 
-                        <SideBarChat key={room.id}
+                <div className="sidebar__chatGroups">
+                    {isChatRoom ? (rooms?.map(room => 
+                        <SideBarGroup key={room.id}
                             id={room.id}
-                            name={room.data.name}/>)) 
+                        />)) 
                         : 
-                        (<div>Hello</div>)
-                } </div>
+                    (conversations?.map(group => 
+                        <SideBarChat key={group}
+                            id={group}
+                        />)) 
+                    }
+                </div>
             </div>
         </div>
     )

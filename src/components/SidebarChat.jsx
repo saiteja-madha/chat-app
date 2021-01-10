@@ -4,42 +4,74 @@ import './SideBarChat.css'
 
 // Material UI
 import {Avatar} from '@material-ui/core'
-import {Link} from 'react-router-dom'
+import { useStateContext } from '../contexts/StateProvier';
+import { actionTypes } from '../contexts/reducer';
 
-function SideBarChat({id, name}) {
+function SideBarChat({ id }) {
+
+    const [{ user }, dispatch] = useStateContext();
     const [messages, setmessages] = useState("");
+    const [chat, setChat] = useState(null);
+    const [contact, setContact] = useState("");
 
     useEffect(() => {
         if (id) {
-          db.collection("rooms")
-            .doc(id)
-            .collection("messages")
-            .orderBy("timestamp", "desc")
-            .onSnapshot((snapshot) =>
-              setmessages(snapshot.docs.map((doc) => doc.data()))
-            );
+            const unsubscribe1 = db.collection("chats")
+                .doc(id)
+                .collection("messages")
+                .orderBy("timestamp", "desc")
+                .limit(1)
+                .onSnapshot((snapshot) =>
+                    setmessages(snapshot.docs.map((doc) => doc.data()))
+                );
+
+            const unsubscribe2 = db.collection("chats").doc(id).onSnapshot(snapshot => setChat(snapshot.data()));
+
+            return () => {
+                unsubscribe1();
+                unsubscribe2();
+            }
         }
-      }, [id]);
+    }, [id]);
+
+    useEffect(() =>{
+        if (chat) {
+            const contactId = (chat.members[0] === user.user_id) ? chat.members[1] : chat.members[0];
+            const unsubscribe = db.collection("users").doc(contactId.trim()).onSnapshot(snapshot => setContact(snapshot.data()));
+
+            return () => {
+                unsubscribe();
+            }
+        }
+    }, [chat, user]);
+
+    const setConversation = () => {
+        dispatch({
+            type: actionTypes.SET_ROOMDATA,
+            roomData: {
+                id: id,
+                type: 2,
+            }
+        })
+    };
 
     return (
-        <Link className="" to={`/rooms/${id}`}>
-            <div className="sidebarChat">
-                <Avatar className="sidebarChat__avatar"/>
-                <div className="sidebarChat__content">
-                    <div className="sidebarChat__topRow">
-                        <div className="sidebarChat__author">
-                            {name} 
-                        </div>
-                        <div className="sidebarChat__lastSeen">
-                            { messages.length === 0 ? '' : new Date(messages[messages.length - 1]?.timestamp?.toDate()).toDateString()}
-                        </div>
+        <div className="sidebarChat" onClick={setConversation}>
+            <Avatar className="sidebarChat__avatar" src={contact.photo_url}/>
+            <div className="sidebarChat__content">
+                <div className="sidebarChat__topRow">
+                    <div className="sidebarChat__author">
+                        {contact.display_name} 
                     </div>
-                    <div className="sidebarChat__chat">
-                    {messages[0]?.message}
+                    <div className="sidebarChat__lastSeen">
+                        { messages.length === 0 ? '' : new Date(messages[messages.length - 1]?.timestamp?.toDate()).toDateString()}
                     </div>
                 </div>
+                <div className="sidebarChat__chat">
+                    {messages[0]?.message}
+                </div>
             </div>
-        </Link>
+        </div>
     )
 }
 

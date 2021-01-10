@@ -6,7 +6,6 @@ import './Chat.css'
 // Utils
 import { validateMessage } from '../utils/validations';
 import { db } from '../utils/firebase';
-import chatbot from '../utils/axios'
 
 // Material UI
 import {Avatar, IconButton} from "@material-ui/core";
@@ -17,19 +16,22 @@ import MoreVertIcon from "@material-ui/icons/MoreVert";
 import SentimentVerySatisfiedIcon from "@material-ui/icons/SentimentVerySatisfied";
 import MicIcon from "@material-ui/icons/Mic";
 
-function Chat() {
+function Room() {
 
     const [messageInput, setMessageInput] = useState("");
+    const [{roomData}, ] = useStateContext();
+    const [roomName, setRoomName] = useState("");
     const [messages, setMessages] = useState([]);
     const [{user},] = useStateContext();
     const lastMsgRef = useRef(null);
-    const [{ roomData }, ] = useStateContext();
-    const [chat, setChat] = useState(null);
-    const [contact, setContact] = useState("");
 
     useEffect(() => {
         if (roomData.id) {
-            const msgListener = db.collection("chats")
+            const nameListener = db.collection("rooms")
+                .doc(roomData.id)
+                .onSnapshot((snapshot) => setRoomName(snapshot.data()?.name));
+
+            const msgListener = db.collection("rooms")
                 .doc(roomData.id)
                 .collection("messages")
                 .orderBy("timestamp", "asc")
@@ -38,29 +40,11 @@ function Chat() {
                 })
 
             return() => {
+                nameListener();
                 msgListener();
             }
         }
     }, [roomData.id]);
-
-    useEffect(() =>{
-        if (roomData.id) {
-            const unsubscribe = db.collection("chats").doc(roomData.id).onSnapshot(snapshot => setChat(snapshot.data()));
-            return () => {
-                unsubscribe();
-            }
-        }
-    }, [roomData.id]);
-
-    useEffect(() => {
-        if (chat) {
-            const contactId = (chat.members[0] === user.user_id) ? chat.members[1] : chat.members[0];
-            const unsubscribe = db.collection("users").doc(contactId.trim()).onSnapshot(snapshot => setContact(snapshot.data()));
-            return () => {
-                unsubscribe();
-            }
-        }
-    }, [chat, user])
 
     const scrollToBottom = () => {
         if (lastMsgRef.current) {
@@ -75,9 +59,8 @@ function Chat() {
     const sendMessage = (event) => {
         event.preventDefault();
 
-        // Validate Textbox message
         if (validateMessage(messageInput)) {
-            db.collection("chats")
+            db.collection("rooms")
             .doc(roomData.id)
             .collection("messages")
             .add({
@@ -88,21 +71,6 @@ function Chat() {
             });
         }
 
-        // CHATBOT Response
-        if (contact.user_id === "chatbot") {
-            chatbot(user.user_id, messageInput, (res) => {
-                db.collection("chats")
-                .doc(roomData.id)
-                .collection("messages")
-                .add({
-                    author_id: "chatbot", 
-                    author_name: "ChatBot", 
-                    message: res.message, 
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                });
-            });
-        }
-
         setMessageInput("");
     };
 
@@ -110,9 +78,9 @@ function Chat() {
         <div className="chat__wrapper">
             <div className="chat">
                 <div className="chat__header">
-                    <Avatar src={contact.photo_url}/>
+                    <Avatar/>
                     <div className="chat__headerLeft">
-                        <h3>{contact.display_name}</h3>
+                        <h3>{roomName}</h3>
                         <p>
                             { messages.length === 0 ? '' : 'Last seen ' + new Date(messages[messages.length - 1]?.data.timestamp?.toDate()).toUTCString()}
                         </p>
@@ -173,4 +141,4 @@ function Chat() {
     )
 }
 
-export default Chat
+export default Room
