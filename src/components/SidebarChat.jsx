@@ -15,7 +15,6 @@ function SideBarChat({ id }) {
     const [contact, setContact] = useState("");
 
     useEffect(() => {
-        console.log("Running UseEffect 1")
         if (id) {
             const unsubscribe1 = db.collection("chats")
                 .doc(id)

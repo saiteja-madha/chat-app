@@ -65,6 +65,7 @@ function Login() {
                     dispatch({type: actionTypes.SET_USER, user: doc.data()});
                 });
             }
+            
         }).catch((err) => 
             alert(err.message)
         );
