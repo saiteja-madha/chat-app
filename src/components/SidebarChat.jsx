@@ -12,9 +12,10 @@ function SideBarChat({ id }) {
     const [{ user }, dispatch] = useStateContext();
     const [messages, setmessages] = useState("");
     const [chat, setChat] = useState(null);
-    const [contactName, setContactName] = useState("");
+    const [contact, setContact] = useState("");
 
     useEffect(() => {
+        console.log("Running UseEffect 1")
         if (id) {
             const unsubscribe1 = db.collection("chats")
                 .doc(id)
@@ -37,7 +38,7 @@ function SideBarChat({ id }) {
     useEffect(() =>{
         if (chat) {
             const contactId = (chat.members[0] === user.user_id) ? chat.members[1] : chat.members[0];
-            const unsubscribe = db.collection("users").doc(contactId.trim()).onSnapshot(snapshot => setContactName(snapshot.data().display_name));
+            const unsubscribe = db.collection("users").doc(contactId.trim()).onSnapshot(snapshot => setContact(snapshot.data()));
 
             return () => {
                 unsubscribe();
@@ -57,11 +58,11 @@ function SideBarChat({ id }) {
 
     return (
         <div className="sidebarChat" onClick={setConversation}>
-            <Avatar className="sidebarChat__avatar"/>
+            <Avatar className="sidebarChat__avatar" src={contact.photo_url}/>
             <div className="sidebarChat__content">
                 <div className="sidebarChat__topRow">
                     <div className="sidebarChat__author">
-                        {contactName} 
+                        {contact.display_name} 
                     </div>
                     <div className="sidebarChat__lastSeen">
                         { messages.length === 0 ? '' : new Date(messages[messages.length - 1]?.timestamp?.toDate()).toDateString()}

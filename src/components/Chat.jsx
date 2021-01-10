@@ -6,6 +6,7 @@ import './Chat.css'
 // Utils
 import { validateMessage } from '../utils/validations';
 import { db } from '../utils/firebase';
+import chatbot from '../utils/axios'
 
 // Material UI
 import {Avatar, IconButton} from "@material-ui/core";
@@ -24,7 +25,7 @@ function Chat() {
     const lastMsgRef = useRef(null);
     const [{ roomData }, ] = useStateContext();
     const [chat, setChat] = useState(null);
-    const [contactName, setContactName] = useState("");
+    const [contact, setContact] = useState("");
 
     useEffect(() => {
         if (roomData.id) {
@@ -54,7 +55,7 @@ function Chat() {
     useEffect(() => {
         if (chat) {
             const contactId = (chat.members[0] === user.user_id) ? chat.members[1] : chat.members[0];
-            const unsubscribe = db.collection("users").doc(contactId.trim()).onSnapshot(snapshot => setContactName(snapshot.data().display_name));
+            const unsubscribe = db.collection("users").doc(contactId.trim()).onSnapshot(snapshot => setContact(snapshot.data()));
             return () => {
                 unsubscribe();
             }
@@ -74,6 +75,7 @@ function Chat() {
     const sendMessage = (event) => {
         event.preventDefault();
 
+        // Validate Textbox message
         if (validateMessage(messageInput)) {
             db.collection("chats")
             .doc(roomData.id)
@@ -86,6 +88,21 @@ function Chat() {
             });
         }
 
+        // CHATBOT Response
+        if (contact.user_id === "chatbot") {
+            chatbot(user.user_id, messageInput, (res) => {
+                db.collection("chats")
+                .doc(roomData.id)
+                .collection("messages")
+                .add({
+                    author_id: "chatbot", 
+                    author_name: "ChatBot", 
+                    message: res, 
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            });
+        }
+
         setMessageInput("");
     };
 
@@ -93,9 +110,9 @@ function Chat() {
         <div className="chat__wrapper">
             <div className="chat">
                 <div className="chat__header">
-                    <Avatar/>
+                    <Avatar src={contact.photo_url}/>
                     <div className="chat__headerLeft">
-                        <h3>{contactName}</h3>
+                        <h3>{contact.display_name}</h3>
                         <p>
                             { messages.length === 0 ? '' : 'Last seen ' + new Date(messages[messages.length - 1]?.data.timestamp?.toDate()).toUTCString()}
                         </p>

@@ -1,5 +1,5 @@
 export const initialState = {
-    user: JSON.parse(localStorage.getItem("user")) || null,
+    user: JSON.parse(sessionStorage.getItem("user")) || null,
     roomData: null
 };
 
@@ -12,7 +12,7 @@ const reducer = (state, action) => {
     switch(action.type) {
 
         case actionTypes.SET_USER:
-            localStorage.setItem("user", JSON.stringify(action.user));
+            sessionStorage.setItem("user", JSON.stringify(action.user));
             return {
                 ...state,
                 user: action.user
