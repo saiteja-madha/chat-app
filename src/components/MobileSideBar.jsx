@@ -71,7 +71,7 @@ function MobileSideBar() {
                                     userDoc.ref.set({conversations: userJsonData}, {merge: true});
                                 });
                             })
-
+    
                         })
                     }
                 });
