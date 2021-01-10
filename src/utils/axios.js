@@ -16,7 +16,7 @@ const chatbot = (userId, message, res) => {
     ).catch(err => {
         console.log(err);
         res({
-            success: true,
+            success: false,
             message: "Eww, I am facing trouble chatting with you. Try again later!"
         });
     }
