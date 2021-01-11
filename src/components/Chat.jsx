@@ -76,8 +76,10 @@ function Chat() {
         event.preventDefault();
 
         // Validate Textbox message
-        if (validateMessage(messageInput)) {
-            db.collection("chats")
+        if (!validateMessage(messageInput))
+            return;
+
+        db.collection("chats")
             .doc(roomData.id)
             .collection("messages")
             .add({
@@ -86,7 +88,7 @@ function Chat() {
                 message: messageInput, 
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             });
-        }
+
 
         // CHATBOT Response
         if (contact.user_id === "chatbot") {
