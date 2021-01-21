@@ -59,13 +59,13 @@
 .sidebar__chatGroups {
 	flex: 0.25;
     flex-grow: 1;
-    background-color: whitesmoke;
+    background-color: #2f3136;
 	overflow-y: scroll;
 	border-bottom-left-radius: 15px;
 }
 
 .sidebar__chatMsgs {
-    background-color: whitesmoke;
+    background-color: #2f3136;
 	overflow-y: scroll;
 	flex: 1;
 }
@@ -80,8 +80,8 @@
 }
  
 .sidebar__chatMsgs::-webkit-scrollbar-thumb {
-	background-color: #34495eb0;
-	outline: 1px solid #34495eb0;
+	background-color: white;
+	outline: 1px solid white;
 }
 
 .sidebar__chatGroups::-webkit-scrollbar {
@@ -94,8 +94,8 @@
 }
  
 .sidebar__chatGroups::-webkit-scrollbar-thumb {
-	background-color: #34495eb0;
-	outline: 1px solid #34495eb0;
+	background-color: white;
+	outline: 1px solid white;
 }
 
 @media (max-width: 800px) {

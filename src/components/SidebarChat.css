@@ -6,11 +6,15 @@
     cursor: pointer;
     height: 72px;
     font-family: Segoe UI,Helvetica Neue,Helvetica,Lucida Grande,Arial,Ubuntu,Cantarell,Fira Sans,sans-serif;
-    border: 1px solid rgb(250, 249, 249);
 }
 
 .sidebarChat:hover {
-    background-color: #EBEBEB;
+    background-color: rgba(79,84,92,0.16);
+    color: #dcddde;
+}
+
+.chatSelected {
+    background-color: rgba(79,84,92,0.32);
 }
 
 .sidebarChat__avatar {
@@ -45,7 +49,7 @@
     text-overflow: ellipsis;
     font-weight: 400;
     font-size: 17px;
-    color: black;
+    color: #dcddde;
 }
 
 .sidebarChat__lastSeen {
@@ -59,13 +63,13 @@
     flex: none;
     max-width: 100%;
     font-size: 12px;
-    color: rgba(0, 0, 0, 0.45)
+    color: gray
 }
 
 .sidebarChat__chat {
     margin-top: 2px;
     margin-right: 2px;
-    color: rgba(0, 0, 0, 0.6);
+    color: gray;
     font-size: 13px;
     line-height: 20px;
     max-width: 75%;

@@ -9,7 +9,7 @@ import { actionTypes } from '../contexts/reducer';
 
 function SideBarChat({ id }) {
 
-    const [{ user }, dispatch] = useStateContext();
+    const [{ user, roomData }, dispatch] = useStateContext();
     const [messages, setmessages] = useState("");
     const [chat, setChat] = useState(null);
     const [contact, setContact] = useState("");
@@ -56,7 +56,7 @@ function SideBarChat({ id }) {
     };
 
     return (
-        <div className="sidebarChat" onClick={setConversation}>
+        <div className={`sidebarChat ${id && roomData?.id === id && "chatSelected"}`} onClick={setConversation}>
             <Avatar className="sidebarChat__avatar" src={contact.photo_url}/>
             <div className="sidebarChat__content">
                 <div className="sidebarChat__topRow">
