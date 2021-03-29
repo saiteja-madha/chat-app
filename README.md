@@ -1,3 +1,8 @@
+<h1 align="center"> Chat Application </h1>
+<p align="center">
+  <img style="text-align:center" src="https://raw.githubusercontent.com/saiteja-madha/chat-app/master/public/demo-frontend.png" />
+</p>
+
 # Demo
 You can watch the site [here](https://chat-app-ba077.web.app/)
 
